@@ -1,5 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { TasksService } from './tasks.service';
+import { CreateTaskDTO } from './dto/create-task.dto';
+import { UpdateTaskDTO } from './dto/update-task.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -8,32 +10,27 @@ export class TasksController {
   
   @Get()
   findAllTasks(){
-    return this.tasksService.listAllTasks()
+    return this.tasksService.findAllTasks()
   }
 
   @Get(":id")
-  findOneTask(@Param('id') id: String){
+  findOneTask(@Param('id') id: string){
     return this.tasksService.findOneTask(id)
   }
 
   @Post()
-  createTask(@Body() body : any){
-    return this.tasksService.createOneTask(body)
+  createTask(@Body() createTaskDto: CreateTaskDTO){
+    return this.tasksService.createOneTask(createTaskDto)
   }
 
   @Patch(":id")
-  updateTask(@Param("id") id: String, @Body() body: any){
-    console.log("ID: " + id)
-    console.log("Body: " + JSON.stringify(body))
-
-    return "Atualizando tarefa....."
+  updateTask(@Param("id") id: string, updateTaskDto: UpdateTaskDTO){
+    return this.tasksService.update(id, updateTaskDto)
   }
 
   @Delete(":id")
   deleteTask(@Param("id") id: string){
-    console.log("ID enviado com sucesso..." + id)
-
-    return "Deletando tarefa..." + id
+    return this.tasksService.delete(id)
   }
 }
 
