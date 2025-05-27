@@ -2,6 +2,8 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query 
 import { TasksService } from './tasks.service';
 import { CreateTaskDTO } from './dto/create-task.dto';
 import { UpdateTaskDTO } from './dto/update-task.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+
 
 @Controller('tasks')
 export class TasksController {
@@ -9,7 +11,8 @@ export class TasksController {
   constructor(private readonly tasksService : TasksService){}
   
   @Get()
-  findAllTasks(){
+  findAllTasks(@Query() paginationDto: PaginationDto){
+    console.log(paginationDto)
     return this.tasksService.findAllTasks()
   }
 
