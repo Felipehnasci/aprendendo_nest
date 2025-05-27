@@ -24,7 +24,9 @@ export class TasksController {
   }
 
   @Patch(":id")
-  updateTask(@Param("id") id: string, updateTaskDto: UpdateTaskDTO){
+  updateTask(@Param("id") id: string,@Body() updateTaskDto: UpdateTaskDTO){
+    console.log('ID recebido no controller:', id);
+    console.log('DTO recebido no controller:', updateTaskDto);
     return this.tasksService.update(id, updateTaskDto)
   }
 
