@@ -9,14 +9,18 @@ export class UsersService {
     constructor(private prisma: PrismaService) {}
 
     async findAllUsers() {
-        return this.prisma.user.findMany();
+        return this.prisma.user.findMany({
+            select: {
+                id: true, email: true, name: true, createdAt: true, tasks: true
+            }
+        })
     }
 
     async findOneUser(id: number) {
         const user = await this.prisma.user.findFirst({
             where: { id },
             select: {
-                id: true, email: true, name: true, createdAt: true
+                id: true, email: true, name: true, createdAt: true, tasks: true
             }
         });
         if (!user) {
@@ -77,8 +81,39 @@ export class UsersService {
         
     }
     async deleteUser(id: number) {
-        return this.prisma.user.delete({
-            where: { id }
+        try{
+            const user = await this.prisma.user.findFirst({
+                where: { id },
+            });
+
+        if (!user) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        }
+        
+        await this.prisma.user.delete({
+            where: { id: user.id },
+            
         });
+        
+        return "User deletado com sucesso !!!";
+
+        }catch (error) {
+            console.log(error);
+            throw new HttpException('Usuário não encontrado', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    async deleteAllUsers() {
+        try{
+            
+        await this.prisma.user.deleteMany();
+        
+        return "Todos os users deletados com sucesso !!!";
+
+        }catch (error) {
+            console.log(error);
+            throw new HttpException('Falha ao deletar todos os users', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

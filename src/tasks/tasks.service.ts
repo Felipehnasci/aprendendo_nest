@@ -38,15 +38,22 @@ export class TasksService {
   }
 
   async createOneTask(createTaskDto: CreateTaskDTO){
-    const task = await this.prisma.task.create({
+    try{
+      const task = await this.prisma.task.create({
       data:{
         name: createTaskDto.name,
         description: createTaskDto.description,
+        userId: createTaskDto.userId,
         completed: false
       }
     })
 
     return task
+    } catch(err){
+
+      throw new HttpException("Falha ao cadastrar uma tarefa", HttpStatus.BAD_REQUEST)
+    }
+  
     
   }
 
@@ -61,7 +68,11 @@ export class TasksService {
         where: {
           id: findTask.id,
         },
-        data: updateTaskDto
+        data: {
+          name: updateTaskDto?.name ? updateTaskDto?.name : findTask.name,
+          description: updateTaskDto?.description ? updateTaskDto?.description : findTask.description,
+          completed: updateTaskDto?.completed ? updateTaskDto?.completed : findTask.completed
+        }
        })
        return task;
     }
@@ -87,6 +98,24 @@ export class TasksService {
     
   }catch(error){
     throw new HttpException("Falha ao deletarr essa tarefa", HttpStatus.BAD_REQUEST)
+    console.log(error)
+    }
+  }
+
+
+  async deleteAllTasks(){
+    try{
+    
+      const emptyTasks = await this.prisma.task.deleteMany()
+
+    if(emptyTasks){
+      return "todas as tarefas deletadas com sucesso!!"
+      }
+
+    
+    
+  }catch(error){
+    throw new HttpException("Falha ao deletar todas as tarefas", HttpStatus.BAD_REQUEST)
     console.log(error)
     }
   }

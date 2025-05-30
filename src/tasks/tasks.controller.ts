@@ -40,6 +40,11 @@ export class TasksController {
   deleteTask(@Param("id", ParseIntPipe) id: number){
     return this.tasksService.delete(id)
   }
+
+  @Delete()
+  deleteAllTasks(){
+    return this.tasksService.deleteAllTasks()
+  }
 }
 
 

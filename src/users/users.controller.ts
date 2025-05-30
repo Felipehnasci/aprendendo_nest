@@ -14,7 +14,7 @@ export class UsersController {
 
   @Get()
   findAllUsers(){
-    return "Listando todos os usuários";
+    return this.UsersService.findAllUsers()
   }
 
   @Post()
@@ -28,8 +28,12 @@ export class UsersController {
   }
 
   @Delete(':id')
-  deleteUser() {
-    return "Deletando usuário";
+  deleteUser(@Param('id', ParseIntPipe) id : number) {
+    return this.UsersService.deleteUser(id);
   }
 
+  @Delete()
+  deleteAllUsers(){
+    return this.UsersService.deleteAllUsers()
+  }
 }
