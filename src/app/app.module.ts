@@ -4,13 +4,18 @@ import { AppService } from './app.service';
 import { TasksModule } from 'src/tasks/tasks.module';
 import { UsersModule } from 'src/users/users.module';
 import { LoggerMiddleware } from 'src/common/middlewares/logger.middleware';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthAdminGuard } from 'src/common/guards/admin-guard';
+import { ConfigModule } from '@nestjs/config';
 
 
 @Module({
-  imports: [TasksModule, UsersModule],
+  imports: [
+    TasksModule, 
+    UsersModule,
+    ConfigModule.forRoot()
+  ],
+
   controllers: [AppController],
+  
   providers: [AppService, ],
 })
 export class AppModule implements NestModule {
