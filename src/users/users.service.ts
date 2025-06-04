@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
@@ -6,7 +7,10 @@ import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 @Injectable()
 export class UsersService {
 
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        private prisma: PrismaService, 
+        private readonly hashingService : HashingServiceProtocol
+    ) {}
 
     async findAllUsers() {
         return this.prisma.user.findMany({
@@ -30,12 +34,13 @@ export class UsersService {
     }
 
     async createUser(createUserDto: CreateUserDto) {
+        const passwordHash = await this.hashingService.hashPassword(createUserDto.password);
         try{
             const user = await this.prisma.user.create({
                 data: {
                     name: createUserDto.name,
                     email: createUserDto.email,
-                    passwordhash: createUserDto.password
+                    passwordhash: passwordHash
                 },
                 select: {
                     id: true,
@@ -54,6 +59,8 @@ export class UsersService {
 
 
     async updateUser(id: number, updateUserDto: UpdateUserDto) {
+
+        
         try{
             const user = await this.prisma.user.findFirst({
                 where: { id },
@@ -63,12 +70,22 @@ export class UsersService {
             throw new HttpException('User not found', HttpStatus.NOT_FOUND);
         }
         
+        const dataUser:  {name?: string, email?: string, passwordhash?: string} = {
+            name: updateUserDto.name? updateUserDto.name : user.name,
+            email: updateUserDto.email? updateUserDto.email : user.email,
+        }
+
+        if(updateUserDto?.password){
+            const passwordHash = await this.hashingService.hashPassword(updateUserDto?.password)
+            dataUser['passwordhash'] = passwordHash;
+        }
+
         const update = await this.prisma.user.update({
             where: { id: user.id },
             data: {
-                name: updateUserDto.name,
-                email: updateUserDto.email,
-                passwordhash: updateUserDto.password
+                name: dataUser.name,
+                email: dataUser.email,
+                passwordhash: dataUser?.passwordhash ? dataUser?.passwordhash : user.passwordhash
             },
         });
         
