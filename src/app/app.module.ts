@@ -5,17 +5,19 @@ import { TasksModule } from 'src/tasks/tasks.module';
 import { UsersModule } from 'src/users/users.module';
 import { LoggerMiddleware } from 'src/common/middlewares/logger.middleware';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from 'src/auth/auth.module';
 
 
 @Module({
   imports: [
     TasksModule, 
     UsersModule,
-    ConfigModule.forRoot()
+    ConfigModule.forRoot(),
+    AuthModule,
   ],
 
   controllers: [AppController],
-  
+
   providers: [AppService, ],
 })
 export class AppModule implements NestModule {
