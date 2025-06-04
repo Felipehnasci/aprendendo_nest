@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDTO } from './dto/create-task.dto';
 import { UpdateTaskDTO } from './dto/update-task.dto';
@@ -7,17 +7,27 @@ import { LoggerInterceptor } from 'src/common/interceptors/logger.interceptor';
 import { BodyCreateTaskInterceptor } from 'src/common/interceptors/body-create-task.interceptor';
 import { AddHeaderInteceptor } from 'src/common/interceptors/add-header.interceptor';
 import { AuthAdminGuard } from 'src/common/guards/admin-guard';
+import { TasksUtils } from './tasks.utils';
 
 @Controller('tasks')
 @UseGuards(AuthAdminGuard)
 export class TasksController {
   
-  constructor(private readonly tasksService : TasksService){}
+  constructor(
+    private readonly tasksService : TasksService,
+    private readonly tasksUtils: TasksUtils,
+
+    @Inject("KEY_TOKEN")
+    private readonly keyToken: string 
+  ){}
   
   @Get()
   @UseInterceptors(AddHeaderInteceptor)
   @UseInterceptors(LoggerInterceptor)
   findAllTasks(@Query() paginationDto: PaginationDto){
+
+    console.log("Key Token:", this.keyToken);
+    console.log(this.tasksUtils.splitString("Hello World from NestJS"))
     return this.tasksService.findAllTasks(paginationDto)
   }
 
