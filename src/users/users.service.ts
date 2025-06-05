@@ -15,7 +15,7 @@ export class UsersService {
     async findAllUsers() {
         return this.prisma.user.findMany({
             select: {
-                id: true, email: true, name: true, createdAt: true, tasks: true
+                id: true, email: true, name: true, createdAt: true, passwordhash: true, tasks: true
             }
         })
     }
