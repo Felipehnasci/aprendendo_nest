@@ -3,6 +3,8 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
+import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 
 @Controller('users')
 export class UsersController {
@@ -27,17 +29,27 @@ export class UsersController {
   
   @UseGuards(AuthTokenGuard)
   @Patch(':id')
-  updateUser(@Body() updateUserDto: UpdateUserDto, @Param('id', ParseIntPipe) id: number) {
-    return this.UsersService.updateUser(id, updateUserDto);
+  updateUser(
+    @Body() updateUserDto: UpdateUserDto,
+    @Param('id', ParseIntPipe) id: number,
+    @TokenPayloadParam() tokenPayload: PayloadTokenDto
+    ) {
+
+    return this.UsersService.updateUser(id, updateUserDto, tokenPayload);
   }
 
+  
+  @UseGuards(AuthTokenGuard)
   @Delete(':id')
-  deleteUser(@Param('id', ParseIntPipe) id : number) {
-    return this.UsersService.deleteUser(id);
+  deleteUser(
+    @Param('id', ParseIntPipe) id : number, 
+    @TokenPayloadParam() tokenPayload: PayloadTokenDto
+    ) {
+    return this.UsersService.deleteUser(id, tokenPayload);
   }
 
   @Delete()
-  deleteAllUsers(){
-    return this.UsersService.deleteAllUsers()
+  deleteAllUsers(@TokenPayloadParam() tokenPayload: PayloadTokenDto) {
+    return this.UsersService.deleteAllUsers(tokenPayload)
   }
 }

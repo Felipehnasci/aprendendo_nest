@@ -1,4 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Payload } from 'generated/prisma/runtime/library';
+import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -58,8 +60,9 @@ export class UsersService {
     }
 
 
-    async updateUser(id: number, updateUserDto: UpdateUserDto) {
+    async updateUser(id: number, updateUserDto: UpdateUserDto, tokenPayload: PayloadTokenDto) {
 
+        console.log("Token Payload:", tokenPayload);
         
         try{
             const user = await this.prisma.user.findFirst({
@@ -67,7 +70,11 @@ export class UsersService {
             });
 
         if (!user) {
-            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+            throw new HttpException('Usuário não encontrado', HttpStatus.NOT_FOUND);
+        }
+
+        if (user.id !== tokenPayload.sub) {
+            throw new HttpException('Acesso Negado', HttpStatus.FORBIDDEN);
         }
         
         const dataUser:  {name?: string, email?: string, passwordhash?: string} = {
@@ -97,7 +104,7 @@ export class UsersService {
         }
         
     }
-    async deleteUser(id: number) {
+    async deleteUser(id: number, tokenPayload : PayloadTokenDto) {
         try{
             const user = await this.prisma.user.findFirst({
                 where: { id },
@@ -106,7 +113,12 @@ export class UsersService {
         if (!user) {
             throw new HttpException('User not found', HttpStatus.NOT_FOUND);
         }
-        
+
+        if (user.id !== tokenPayload.sub) {
+            throw new HttpException('Acesso Negado', HttpStatus.FORBIDDEN);
+        }
+
+
         await this.prisma.user.delete({
             where: { id: user.id },
             
@@ -121,7 +133,7 @@ export class UsersService {
     }
 
 
-    async deleteAllUsers() {
+    async deleteAllUsers(tokenPayload : PayloadTokenDto) {
         try{
             
         await this.prisma.user.deleteMany();
