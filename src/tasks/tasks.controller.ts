@@ -8,9 +8,11 @@ import { BodyCreateTaskInterceptor } from 'src/common/interceptors/body-create-t
 import { AddHeaderInteceptor } from 'src/common/interceptors/add-header.interceptor';
 import { AuthAdminGuard } from 'src/common/guards/admin-guard';
 import { TasksUtils } from './tasks.utils';
+import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
+import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 
 @Controller('tasks')
-@UseGuards(AuthAdminGuard)
 export class TasksController {
   
   constructor(
@@ -22,8 +24,6 @@ export class TasksController {
   ){}
   
   @Get()
-  @UseInterceptors(AddHeaderInteceptor)
-  @UseInterceptors(LoggerInterceptor)
   findAllTasks(@Query() paginationDto: PaginationDto){
 
     console.log("Key Token:", this.keyToken);
@@ -37,18 +37,22 @@ export class TasksController {
   }
 
   @Post()
-  @UseInterceptors(BodyCreateTaskInterceptor)
-  createTask(@Body() createTaskDto: CreateTaskDTO){
+  @UseGuards(AuthTokenGuard)
+  createTask(@Body() createTaskDto: CreateTaskDTO,
+    @TokenPayloadParam() payloadToken : PayloadTokenDto
+    ){
     return this.tasksService.createOneTask(createTaskDto)
   }
 
   @Patch(":id")
+  @UseGuards(AuthTokenGuard)
   updateTask(@Param("id", ParseIntPipe) id: number,@Body() updateTaskDto: UpdateTaskDTO){
   
     return this.tasksService.update(id, updateTaskDto)
   }
 
   @Delete(":id")
+  @UseGuards(AuthTokenGuard)
   deleteTask(@Param("id", ParseIntPipe) id: number){
     return this.tasksService.delete(id)
   }

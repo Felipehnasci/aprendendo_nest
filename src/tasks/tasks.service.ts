@@ -43,7 +43,6 @@ export class TasksService {
       data:{
         name: createTaskDto.name,
         description: createTaskDto.description,
-        userId: createTaskDto.userId,
         completed: false
       }
     })
